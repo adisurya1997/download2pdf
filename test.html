@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Download PDF with POST Method</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #container {
+            text-align: center;
+        }
+
+        /* Add CSS styles for the loading spinner */
+        #loadingSpinner {
+            display: none;
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        input[type="text"] {
+            padding: 8px;
+            font-size: 16px;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            margin-right: 8px;
+        }
+
+        #downloadBtn {
+            padding: 8px 16px;
+            font-size: 16px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #downloadBtn:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>Download PDF</h1>
+        <label for="urlInput">Enter the URL:</label>
+        <input type="text" id="urlInput" placeholder="e.g., https://www.example.com">
+        <button id="downloadBtn">Download PDF</button>
+        <div id="loadingSpinner"></div> <!-- The loading spinner element -->
+    </div>
+    <script>
+        document.getElementById("downloadBtn").addEventListener("click", function() {
+            const urlInput = document.getElementById("urlInput").value;
+            
+            // Check if the URL starts with "http://" or "https://"
+            if (!urlInput.toLowerCase().startsWith("http://") && !urlInput.toLowerCase().startsWith("https://")) {
+                alert("Please enter a valid URL starting with 'http://' or 'https://'.");
+                return;
+            }
+            
+            const jsonData = {
+                url: urlInput
+            };
+
+            // Show the loading spinner while waiting for the response
+            const loadingSpinner = document.getElementById("loadingSpinner");
+            loadingSpinner.style.display = "block";
+
+            fetch('https://proxy-cors.carakan.id/https://eiabbhvgai.function.microgen.id/page2pdf', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(jsonData)
+            })
+            .then(response => {
+                // Check if the response is successful (status code 200-299)
+                if (!response.ok) {
+                    // Handle non-200 status codes
+                    throw new Error('Network response was not ok');
+                }
+
+                // Hide the loading spinner once the response is received
+                loadingSpinner.style.display = "none";
+
+                // Extract the PDF data from the response
+                return response.blob();
+            })
+            .then(pdfData => {
+                // Create a Blob with the PDF data
+                const blob = new Blob([pdfData], { type: 'application/pdf' });
+
+                // Generate a download link and click it to trigger the download
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'document.pdf'; // Change the filename if needed
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+
+                // Clean up the URL object
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Hide the loading spinner if an error occurs
+                loadingSpinner.style.display = "none";
+                alert('Failed to download PDF. Please try again later.');
+            });
+        });
+    </script>
+</body>
+</html>
